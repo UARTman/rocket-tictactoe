@@ -1,6 +1,7 @@
+use rocket_okapi::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, Serialize, Deserialize, PartialEq, Eq, Debug, JsonSchema)]
 pub enum Cell {
     X,
     O,
@@ -15,10 +16,10 @@ impl Cell {
     }
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, JsonSchema)]
 pub struct TicTacToeGame {
     pub field: Vec<Vec<Option<Cell>>>,
-    #[serde(rename="currentPlayer")]
+    #[serde(rename = "currentPlayer")]
     pub current_player: Option<Cell>,
     pub winner: Option<Cell>,
     pub size: usize,
