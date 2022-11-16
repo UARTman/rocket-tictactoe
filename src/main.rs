@@ -1,4 +1,4 @@
-// #![deny(warnings)]
+#![deny(warnings)]
 
 use rocket::{launch, routes, tokio::sync::Mutex};
 use rocket_cors::{AllowedOrigins, CorsOptions};
