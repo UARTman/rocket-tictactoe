@@ -1,5 +1,8 @@
+[workspace]
+members = ["migration"]
+
 [package]
-name = "rocket-tictactoe"
+name = "rocket_tictactoe"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,3 +16,4 @@ schemars = "*"
 # okapi = {version = "0.7.0-rc.2"}
 # rocket_cors = { version="0.6.0-alpha1" }
 serde = { version = "1.0", features = ["derive"] }
+sea-orm = { version = "^0.9.0", features = [ "sqlx-sqlite", "runtime-tokio-native-tls", "macros" ] }

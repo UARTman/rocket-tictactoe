@@ -77,7 +77,7 @@ impl TicTacToeGame {
             for j in 0..self.criteria {
                 if j == 0 {
                     q = self.field[i][y + j];
-                    if q == None {
+                    if q.is_none() {
                         break;
                     }
                 } else if self.field[i][y + j] != q {
@@ -95,7 +95,7 @@ impl TicTacToeGame {
             for j in 0..self.criteria {
                 if j == 0 {
                     q = self.field[x + j][i];
-                    if q == None {
+                    if q.is_none() {
                         break;
                     }
                 } else if self.field[x + j][i] != q {
@@ -112,7 +112,7 @@ impl TicTacToeGame {
         for i in 0..self.criteria {
             if i == 0 {
                 q = self.field[x + i][y + i];
-                if q == None {
+                if q.is_none() {
                     break;
                 }
             } else if self.field[x + i][y + i] != q {
@@ -128,7 +128,7 @@ impl TicTacToeGame {
         for i in 0..self.criteria {
             if i == 0 {
                 q = self.field[x + i][y + self.criteria - 1 - i];
-                if q == None {
+                if q.is_none() {
                     break;
                 }
             } else if self.field[x + i][y + self.criteria - 1 - i] != q {
