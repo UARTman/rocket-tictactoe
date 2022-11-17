@@ -53,15 +53,23 @@ impl HubEntry {
 
     pub fn set_player(&mut self, kind: Cell, player: String) {
         match kind {
-            Cell::X => if self.x_player.is_none() {self.x_player = Some(player)},
-            Cell::O => if self.o_player.is_none() {self.o_player = Some(player)},
+            Cell::X => {
+                if self.x_player.is_none() {
+                    self.x_player = Some(player)
+                }
+            }
+            Cell::O => {
+                if self.o_player.is_none() {
+                    self.o_player = Some(player)
+                }
+            }
         }
     }
 
     pub fn is_a_player(&self, player: String) -> bool {
         if let Some(p) = self.x_player.clone() {
             p == player
-        } else if let Some(p) = self.o_player.clone()  {
+        } else if let Some(p) = self.o_player.clone() {
             p == player
         } else {
             false

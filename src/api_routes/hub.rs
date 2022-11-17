@@ -1,8 +1,9 @@
 use crate::{
     auth::Claims,
-    hub::{Hub, HubEntry}, tictac::{Cell, TicTacToeGame},
+    hub::{Hub, HubEntry},
+    tictac::{Cell, TicTacToeGame},
 };
-use rocket::{get, post, serde::json::Json, tokio::sync::RwLock, State, delete};
+use rocket::{delete, get, post, serde::json::Json, tokio::sync::RwLock, State};
 use rocket_okapi::{openapi, JsonSchema};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -41,13 +42,18 @@ pub async fn get_game_by_id(hub: &State<RwLock<Hub>>, id: u64) -> Option<Json<Hu
 
 #[derive(Deserialize, JsonSchema)]
 pub struct RegisterData {
-    #[serde(rename="as")]
+    #[serde(rename = "as")]
     _as: Cell,
 }
 
 #[openapi(tag = "Games")]
-#[post("/games/<id>/register", data="<data>")]
-pub async fn game_register(hub: &State<RwLock<Hub>>, id: u64, claims: Claims, data: Json<RegisterData>) -> Option<Json<HubEntry>> {
+#[post("/games/<id>/register", data = "<data>")]
+pub async fn game_register(
+    hub: &State<RwLock<Hub>>,
+    id: u64,
+    claims: Claims,
+    data: Json<RegisterData>,
+) -> Option<Json<HubEntry>> {
     let hub = hub.read().await;
     let mut game = hub.entries.get(&id)?.write().await;
     game.set_player(data.0._as, claims.username);
@@ -55,8 +61,13 @@ pub async fn game_register(hub: &State<RwLock<Hub>>, id: u64, claims: Claims, da
 }
 
 #[openapi(tag = "Games")]
-#[post("/games/<id>/turn", data="<data>")]
-pub async fn game_turn(hub: &State<RwLock<Hub>>, id: u64, claims: Claims, data: Json<TurnData>) -> Option<Json<HubEntry>> {
+#[post("/games/<id>/turn", data = "<data>")]
+pub async fn game_turn(
+    hub: &State<RwLock<Hub>>,
+    id: u64,
+    claims: Claims,
+    data: Json<TurnData>,
+) -> Option<Json<HubEntry>> {
     let hub = hub.read().await;
     let mut game = hub.entries.get(&id)?.write().await;
     game.turn(data.0.x, data.0.y, claims.username);
@@ -64,8 +75,13 @@ pub async fn game_turn(hub: &State<RwLock<Hub>>, id: u64, claims: Claims, data: 
 }
 
 #[openapi(tag = "Games")]
-#[post("/games/<id>/reset", data="<data>")]
-pub async fn game_reset(hub: &State<RwLock<Hub>>, id: u64, claims: Claims, data: Json<ResetData>) -> Option<Json<HubEntry>> {
+#[post("/games/<id>/reset", data = "<data>")]
+pub async fn game_reset(
+    hub: &State<RwLock<Hub>>,
+    id: u64,
+    claims: Claims,
+    data: Json<ResetData>,
+) -> Option<Json<HubEntry>> {
     let hub = hub.read().await;
     let mut game = hub.entries.get(&id)?.write().await;
     if game.is_a_player(claims.username) {

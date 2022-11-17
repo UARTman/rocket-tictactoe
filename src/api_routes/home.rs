@@ -19,10 +19,7 @@ pub struct TurnData {
 
 #[openapi(tag = "Homepage Tic-tac-toc game")]
 #[post("/turn", data = "<data>")]
-pub async fn turn(
-    game: &State<Mutex<TicTacToeGame>>,
-    data: Json<TurnData>,
-) -> Json<TicTacToeGame> {
+pub async fn turn(game: &State<Mutex<TicTacToeGame>>, data: Json<TurnData>) -> Json<TicTacToeGame> {
     let mut game = game.lock().await;
     (*game).turn(data.x, data.y);
     Json((*game).clone())
