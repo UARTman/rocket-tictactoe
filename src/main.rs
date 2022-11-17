@@ -6,11 +6,11 @@ use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};
 use sea_orm::Database;
 
+mod auth;
 pub mod database;
 mod hub;
 mod routes;
 mod tictac;
-mod auth;
 #[cfg(debug_assertions)]
 fn get_secret() -> String {
     "secret".to_owned()
@@ -20,7 +20,6 @@ fn get_secret() -> String {
 fn get_secret() -> String {
     std::env::var("SECRET").unwrap()
 }
-    
 
 #[launch]
 async fn rocket() -> _ {

@@ -1,3 +1,4 @@
+use chrono::{Days, Utc};
 use rocket::{get, post, serde::json::Json, tokio::sync::Mutex, State};
 use rocket_okapi::{okapi::schemars::JsonSchema, openapi, openapi_get_routes};
 use sea_orm::{
@@ -5,7 +6,10 @@ use sea_orm::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{tictac::TicTacToeGame, auth::{Claims, Secret, encode_token}};
+use crate::{
+    auth::{encode_token, Claims, Secret},
+    tictac::TicTacToeGame,
+};
 
 #[openapi(tag = "Homepage Tic-tac-toc game")]
 #[get("/")]
@@ -82,7 +86,11 @@ pub async fn register(
 
 #[openapi(tag = "User control")]
 #[post("/user/login", data = "<data>")]
-pub async fn login(db: &State<DatabaseConnection>, data: Json<UserData>, secret: &State<Secret>) -> Json<Option<String>> {
+pub async fn login(
+    db: &State<DatabaseConnection>,
+    data: Json<UserData>,
+    secret: &State<Secret>,
+) -> Json<Option<String>> {
     use crate::database::user;
     let x = user::Entity::find()
         .filter(
@@ -93,10 +101,14 @@ pub async fn login(db: &State<DatabaseConnection>, data: Json<UserData>, secret:
         .one(&**db)
         .await;
 
+    let timestamp = Utc::now()
+        .checked_add_days(Days::new(1))
+        .unwrap()
+        .timestamp();
     Json(if let Ok(Some(_user)) = x {
         let claims = Claims {
             username: _user.username,
-            exp: 0
+            exp: timestamp,
         };
         encode_token(&claims, &secret.0)
     } else {
