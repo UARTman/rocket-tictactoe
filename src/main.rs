@@ -1,15 +1,19 @@
-#![deny(warnings)]
+// #![deny(warnings)]
 
 use auth::Secret;
-use rocket::{launch, tokio::sync::Mutex};
+use hub::Hub;
+use rocket::{
+    launch,
+    tokio::sync::{Mutex, RwLock},
+};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};
 use sea_orm::Database;
 
+mod api_routes;
 mod auth;
 pub mod database;
 mod hub;
-mod routes;
 mod tictac;
 #[cfg(debug_assertions)]
 fn get_secret() -> String {
@@ -36,9 +40,10 @@ async fn rocket() -> _ {
 
     rocket::build()
         .manage(Mutex::new(tictac::TicTacToeGame::new(3, 3)))
+        .manage(RwLock::new(Hub::new()))
         .manage(db)
         .manage(Secret(secret))
-        .mount("/", routes::routes())
+        .mount("/", api_routes::routes())
         .mount(
             "/docs/",
             make_swagger_ui(&SwaggerUIConfig {

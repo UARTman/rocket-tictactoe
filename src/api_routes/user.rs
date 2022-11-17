@@ -1,56 +1,12 @@
 use chrono::{Days, Utc};
-use rocket::{get, post, serde::json::Json, tokio::sync::Mutex, State};
-use rocket_okapi::{okapi::schemars::JsonSchema, openapi, openapi_get_routes};
+use rocket::{post, serde::json::Json, State};
+use rocket_okapi::{okapi::schemars::JsonSchema, openapi};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, DatabaseConnection, EntityTrait, QueryFilter, Set,
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    auth::{encode_token, Claims, Secret},
-    tictac::TicTacToeGame,
-};
-
-#[openapi(tag = "Homepage Tic-tac-toc game")]
-#[get("/")]
-pub async fn homepage(game: &State<Mutex<TicTacToeGame>>) -> Json<TicTacToeGame> {
-    let game = game.lock().await;
-    Json((*game).clone())
-}
-
-#[derive(Deserialize, JsonSchema)]
-pub struct TurnCommand {
-    x: usize,
-    y: usize,
-}
-
-#[openapi(tag = "Homepage Tic-tac-toc game")]
-#[post("/turn", data = "<cmd>")]
-pub async fn turn(
-    game: &State<Mutex<TicTacToeGame>>,
-    cmd: Json<TurnCommand>,
-) -> Json<TicTacToeGame> {
-    let mut game = game.lock().await;
-    (*game).turn(cmd.x, cmd.y);
-    Json((*game).clone())
-}
-
-#[derive(Deserialize, JsonSchema)]
-pub struct ResetCommand {
-    size: usize,
-    criteria: usize,
-}
-
-#[openapi(tag = "Homepage Tic-tac-toc game")]
-#[post("/reset", data = "<cmd>")]
-pub async fn reset(
-    game: &State<Mutex<TicTacToeGame>>,
-    cmd: Json<ResetCommand>,
-) -> Json<TicTacToeGame> {
-    let mut game = game.lock().await;
-    *game = TicTacToeGame::new(cmd.size, cmd.criteria);
-    Json((*game).clone())
-}
+use crate::auth::{encode_token, Claims, Secret};
 
 #[derive(Deserialize, JsonSchema)]
 pub struct UserData {
@@ -120,8 +76,4 @@ pub async fn login(
 #[post("/user/check")]
 pub async fn check_logged_in(claims: Option<Claims>) -> Json<Option<String>> {
     Json(claims.map(|x| x.username))
-}
-
-pub fn routes() -> std::vec::Vec<rocket::Route> {
-    openapi_get_routes![homepage, turn, reset, register, login, check_logged_in]
 }
