@@ -5,7 +5,7 @@ use sea_orm::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::tictac::TicTacToeGame;
+use crate::{tictac::TicTacToeGame, auth::{Claims, Secret, encode_token}};
 
 #[openapi(tag = "Homepage Tic-tac-toc game")]
 #[get("/")]
@@ -82,7 +82,7 @@ pub async fn register(
 
 #[openapi(tag = "User control")]
 #[post("/user/login", data = "<data>")]
-pub async fn login(db: &State<DatabaseConnection>, data: Json<UserData>) -> Json<bool> {
+pub async fn login(db: &State<DatabaseConnection>, data: Json<UserData>, secret: &State<Secret>) -> Json<Option<String>> {
     use crate::database::user;
     let x = user::Entity::find()
         .filter(
@@ -92,13 +92,24 @@ pub async fn login(db: &State<DatabaseConnection>, data: Json<UserData>) -> Json
         )
         .one(&**db)
         .await;
-    if let Ok(Some(_user)) = x {
-        Json(true)
+
+    Json(if let Ok(Some(_user)) = x {
+        let claims = Claims {
+            username: _user.username,
+            exp: 0
+        };
+        encode_token(&claims, &secret.0)
     } else {
-        Json(false)
-    }
+        None
+    })
+}
+
+#[openapi(tag = "User control")]
+#[post("/user/check")]
+pub async fn check_logged_in(claims: Option<Claims>) -> Json<Option<String>> {
+    Json(claims.map(|x| x.username))
 }
 
 pub fn routes() -> std::vec::Vec<rocket::Route> {
-    openapi_get_routes![homepage, turn, reset, register, login]
+    openapi_get_routes![homepage, turn, reset, register, login, check_logged_in]
 }
